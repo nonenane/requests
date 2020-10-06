@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DataSet1" targetNamespace="http://tempuri.org/DataSet1.xsd" xmlns:mstns="http://tempuri.org/DataSet1.xsd" xmlns="http://tempuri.org/DataSet1.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DataSet1" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:Generator_UserDSName="DataSet1" msprop:Generator_DataSetName="DataSet1" msprop:EnableTableAdapterManager="true">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="dtPereoc" msprop:Generator_UserTableName="dtPereoc" msprop:Generator_RowDeletedName="dtPereocRowDeleted" msprop:Generator_RowChangedName="dtPereocRowChanged" msprop:Generator_RowClassName="dtPereocRow" msprop:Generator_RowChangingName="dtPereocRowChanging" msprop:Generator_RowEvArgName="dtPereocRowChangeEvent" msprop:Generator_RowEvHandlerName="dtPereocRowChangeEventHandler" msprop:Generator_TableClassName="dtPereocDataTable" msprop:Generator_TableVarName="tabledtPereoc" msprop:Generator_RowDeletingName="dtPereocRowDeleting" msprop:Generator_TablePropName="dtPereoc">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="cName" msprop:Generator_UserColumnName="cName" msprop:Generator_ColumnVarNameInTable="columncName" msprop:Generator_ColumnPropNameInRow="cName" msprop:Generator_ColumnPropNameInTable="cNameColumn" type="xs:string" minOccurs="0" />
+              <xs:element name="ean" msprop:Generator_UserColumnName="ean" msprop:Generator_ColumnVarNameInTable="columnean" msprop:Generator_ColumnPropNameInRow="ean" msprop:Generator_ColumnPropNameInTable="eanColumn" type="xs:string" minOccurs="0" />
+              <xs:element name="ostOnDate" msprop:Generator_UserColumnName="ostOnDate" msprop:Generator_ColumnVarNameInTable="columnostOnDate" msprop:Generator_ColumnPropNameInRow="ostOnDate" msprop:Generator_ColumnPropNameInTable="ostOnDateColumn" type="xs:string" minOccurs="0" />
+              <xs:element name="rcena" msprop:Generator_UserColumnName="rcena" msprop:Generator_ColumnVarNameInTable="columnrcena" msprop:Generator_ColumnPropNameInRow="rcena" msprop:Generator_ColumnPropNameInTable="rcenaColumn" type="xs:string" minOccurs="0" />
+              <xs:element name="zcena" msprop:Generator_UserColumnName="zcena" msprop:Generator_ColumnVarNameInTable="columnzcena" msprop:Generator_ColumnPropNameInRow="zcena" msprop:Generator_ColumnPropNameInTable="zcenaColumn" type="xs:string" minOccurs="0" />
+              <xs:element name="zcenabnds" msprop:Generator_UserColumnName="zcenabnds" msprop:Generator_ColumnVarNameInTable="columnzcenabnds" msprop:Generator_ColumnPropNameInRow="zcenabnds" msprop:Generator_ColumnPropNameInTable="zcenabndsColumn" type="xs:string" minOccurs="0" />
+              <xs:element name="number" msprop:Generator_UserColumnName="number" msprop:Generator_ColumnPropNameInRow="number" msprop:Generator_ColumnVarNameInTable="columnnumber" msprop:Generator_ColumnPropNameInTable="numberColumn" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
