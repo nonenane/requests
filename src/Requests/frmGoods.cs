@@ -53,6 +53,11 @@ namespace Requests
                 }
             }
 
+            pMatrix.Visible = chbMatrix.Visible = new List<string>(new string[] { "РКВ", "КД" }).Contains(UserSettings.User.StatusCode);
+            tsmiAddGoodMatrix.Visible = tsmiDelGoodMatrix.Visible = new List<string>(new string[] { "РКВ", "КД" }).Contains(UserSettings.User.StatusCode);
+
+            //Console.WriteLine(new List<string>(new string[] { "РКВ", "КД" }).Contains(UserSettings.User.StatusCode));
+
             GetDeps();
             GetTUGrps();
             GetInvGrps();
@@ -268,6 +273,9 @@ namespace Requests
                                       : (Config.CheckProperty("id_val = 'show zeroStrings' AND val = '1'") ? ""
                                                             : (filter.Trim().Length > 0 ? " AND " : "") + "CatFullZero = 0"));
             filter += (chbReqGoods.Checked ? (filter.Trim().Length > 0 ? " AND " : "") + "id_tovar IN (" + Config.GetStringFromRow(Config.linkToCurrentRequest.getGoodsData(), "id_tovar") + ")" : "");
+
+            if (chbMatrix.Checked)
+                filter += (filter.Trim().Length > 0 ? " AND " : "") + " idMaxrixGood is not null";
             try
             {
                 bsGoods.Filter = filter;
@@ -938,15 +946,18 @@ namespace Requests
         private void grdGoods_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
             rowColor = Color.White;
+            grdGoods.Rows[e.RowIndex].DefaultCellStyle.SelectionForeColor = Color.Black;
 
             if ((UserSettings.User.StatusCode == "МН" || UserSettings.User.StatusCode == "ДМН")
                 && Config.linkToCurrentRequest != null
                 && Config.linkToCurrentRequest.getGoodsData() != null
                 && Config.linkToCurrentRequest.getGoodsData().AsEnumerable().Select(x => x.Field<int>("id_tovar")).ToArray().Contains((int)(grdGoods.Rows[e.RowIndex].Cells["id_tovar"].Value)))
             {
-                grdGoods.Rows[e.RowIndex].DefaultCellStyle.BackColor = 
+                grdGoods.Rows[e.RowIndex].DefaultCellStyle.BackColor =
+                    grdGoods.Rows[e.RowIndex].DefaultCellStyle.SelectionBackColor =
                 grdGoods.Rows[e.RowIndex].Cells["ean"].Style.BackColor =
-                    grdGoods.Rows[e.RowIndex].Cells["cName"].Style.BackColor = Color.FromArgb(173, 255, 135);
+                    //grdGoods.Rows[e.RowIndex].Cells["cName"].Style.BackColor =
+                    Color.FromArgb(173, 255, 135);
             }
             else
             {
@@ -955,16 +966,23 @@ namespace Requests
                 {
                     rowColor = Color.FromArgb(255, 190, 190);
                 }
-
+                grdGoods.Rows[e.RowIndex].DefaultCellStyle.SelectionBackColor =
                 grdGoods.Rows[e.RowIndex].DefaultCellStyle.BackColor = rowColor;
 
                 if ((bool)grdGoods.Rows[e.RowIndex].Cells["isCatGood"].Value)
                 {
                     rowColor  = Color.FromArgb(255, 233, 120);
                 }
-
+                grdGoods.Rows[e.RowIndex].Cells["ean"].Style.SelectionBackColor=
                 grdGoods.Rows[e.RowIndex].Cells["ean"].Style.BackColor =
-                    grdGoods.Rows[e.RowIndex].Cells["cName"].Style.BackColor = rowColor;
+                    //grdGoods.Rows[e.RowIndex].Cells["cName"].Style.BackColor = 
+                    rowColor;
+
+                if (dtGoods.DefaultView[e.RowIndex]["idMaxrixGood"] != DBNull.Value)
+                {
+                    grdGoods.Rows[e.RowIndex].Cells["cName"].Style.SelectionBackColor =
+                       grdGoods.Rows[e.RowIndex].Cells["cName"].Style.BackColor = pMatrix.BackColor;
+                }
             }            
         }
 
@@ -1126,6 +1144,11 @@ namespace Requests
             tsAddToCatalog.Enabled = !(bool)curRow["isCatGood"];
             tsDelFromCatalog.Enabled = (bool)curRow["isCatGood"];
             tsAddToProh.Enabled = !(bool)curRow["isProh"];
+
+            tsmiAddGoodMatrix.Enabled = curRow["idMaxrixGood"] == DBNull.Value;
+            tsmiDelGoodMatrix.Enabled = curRow["idMaxrixGood"] != DBNull.Value;
+
+
         }
 
         private void btExcel_Click(object sender, EventArgs e)
@@ -1625,6 +1648,47 @@ namespace Requests
             idPost2 = frmPosts.PostId;
 
             GetGoods();
+        }
+
+        private void tsmiAddGoodMatrix_Click(object sender, EventArgs e)
+        {
+            int id_tovar = (int)curRow["id_tovar"];
+            DataTable dtResult = (int)cbDep.SelectedValue!=6? Config.hCntMain.setTovarMatrix(id_tovar, false): Config.hCntAdd.setTovarMatrix(id_tovar, false);
+            if (dtResult == null || dtResult.Rows.Count == 0) return;
+
+            curRow["idMaxrixGood"] = (int)dtResult.Rows[0]["id"];
+        }
+
+        private void tsmiDelGoodMatrix_Click(object sender, EventArgs e)
+        {
+            int id_tovar = (int)curRow["id_tovar"];
+            DataTable dtResult = (int)cbDep.SelectedValue != 6 ? Config.hCntMain.setTovarMatrix(id_tovar, true) : Config.hCntAdd.setTovarMatrix(id_tovar, true);
+            if (dtResult == null || dtResult.Rows.Count == 0) return;
+
+            curRow["idMaxrixGood"] = DBNull.Value;
+        }
+
+        private void chbMatrix_Click(object sender, EventArgs e)
+        {
+            SetFilter();
+        }
+
+        private void grdGoods_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            DataGridView dgv = sender as DataGridView;
+            //Рисуем рамку для выделеной строки
+            if (dgv.Rows[e.RowIndex].Selected)
+            {
+                int width = dgv.Width;
+                Rectangle r = dgv.GetRowDisplayRectangle(e.RowIndex, false);
+                Rectangle rect = new Rectangle(r.X, r.Y, width - 1, r.Height - 1);
+
+                ControlPaint.DrawBorder(e.Graphics, rect,
+                    SystemColors.Highlight, 2, ButtonBorderStyle.Solid,
+                    SystemColors.Highlight, 2, ButtonBorderStyle.Solid,
+                    SystemColors.Highlight, 2, ButtonBorderStyle.Solid,
+                    SystemColors.Highlight, 2, ButtonBorderStyle.Solid);
+            }
         }
 
         private void btClearPost2_Click(object sender, EventArgs e)

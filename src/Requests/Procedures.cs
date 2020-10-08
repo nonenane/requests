@@ -2012,5 +2012,20 @@ namespace Requests
                 error = (int)dt.Rows[0]["error"];
             return error;
         }
+
+        public DataTable setTovarMatrix(int id_tovar, bool isDel)
+        {
+            ap.Clear();
+
+            ap.Add(id_tovar);
+            ap.Add(UserSettings.User.Id);
+            ap.Add(isDel);
+
+            return executeProcedure("[Requests].[setTovarMatrix]",
+                new string[3] { "@id_tovar", "@id_user","@isDel" },
+                new DbType[3] { DbType.Int32, DbType.Int32,DbType.Boolean },
+                ap);
+        }
+
     }
 }
