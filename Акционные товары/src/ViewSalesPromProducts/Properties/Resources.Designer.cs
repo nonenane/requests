@@ -153,16 +153,6 @@ namespace ViewSalesPromProducts.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap S7Bn {
-            get {
-                object obj = ResourceManager.GetObject("S7Bn", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap save_edit {
             get {
                 object obj = ResourceManager.GetObject("save_edit", resourceCulture);

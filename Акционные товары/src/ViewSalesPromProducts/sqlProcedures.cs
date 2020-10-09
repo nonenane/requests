@@ -118,6 +118,78 @@ namespace ViewSalesPromProducts
                 new DbType[] { }, ap);
         }
 
+        public DataTable getGoodToCatalog(string ean,bool isValidate)
+        {
+            ap.Clear();
+            ap.Add(ean);
+            ap.Add(isValidate);
+            return executeProcedure("[requests].[getGoodToCatalog]",
+                new string[2] { "@ean","@isValidate" },
+                new DbType[2] {DbType.String,DbType.Boolean }, ap);
+        }
+
+        public DataTable setGoodsUpdate(int id_departments, int tax, int grp, int dpt, int price, string name, string ean)
+        {
+            ap.Clear();
+            ap.Add(id_departments);
+            ap.Add(UserSettings.User.Id);
+            ap.Add(tax);
+            ap.Add(grp);
+            ap.Add(dpt);
+            ap.Add(price);
+            ap.Add(name);
+            ap.Add(ean);
+
+
+
+
+            return executeProcedure("[requests].[setGoodsUpdate]",
+                 new string[8] {
+                     "@id_departments",
+                     "@sender",
+                     "@tax",
+                     "@grp",
+                     "@dpt",
+                     "@price",
+                     "@name",
+                     "@ean"},
+                 new DbType[8] {
+                     DbType.Int32,
+                     DbType.String,
+                     DbType.Int16,
+                     DbType.Int32,
+                     DbType.Int32,
+                     DbType.Int32,
+                     DbType.String,
+                     DbType.String},
+                 ap);
+        }
+
+
+        public DataTable setCatalogPromotionalTovars(int id_tovar, decimal rcena,decimal rcenaDiscount, bool isDel)
+        {
+            ap.Clear();
+            ap.Add(id_tovar);
+            ap.Add(rcena);
+            ap.Add(rcenaDiscount);
+            ap.Add(UserSettings.User.Id);            
+            ap.Add(isDel);
+
+            return executeProcedure("[requests].[setCatalogPromotionalTovars]",
+                 new string[5] {
+                     "@id_tovar",
+                     "@rcena",
+                     "@rcenaDiscount",
+                     "@id_user",
+                     "@isDel"},
+                 new DbType[5] {
+                     DbType.Int32,
+                     DbType.Decimal,
+                     DbType.Decimal,
+                     DbType.Int32,
+                     DbType.Boolean},
+                 ap);
+        }
 
     }
 }

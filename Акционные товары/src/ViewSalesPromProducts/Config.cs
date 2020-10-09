@@ -9,7 +9,9 @@ namespace ViewSalesPromProducts
     public class Config
     {
         public static sqlProcedures connectMain { get; set; } //осн. коннект
+        public static sqlProcedures connectMainKassRealiz { get; set; } //осн. коннект
         public static sqlProcedures connectSecond { get; set; } //доп. коннект
+        public static sqlProcedures connectSecondKassRealiz { get; set; } //доп. коннект
 
         public static bool CheckDtOnEmpty(DataTable dt)
         {

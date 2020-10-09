@@ -12,6 +12,7 @@ namespace ViewSalesPromProducts
     public partial class frmViewDiscountGoods : Form
     {
         private DataTable dtData;
+        private Nwuram.Framework.ToExcelNew.ExcelUnLoad report = null;
 
         public frmViewDiscountGoods()
         {
@@ -94,7 +95,7 @@ namespace ViewSalesPromProducts
         {
             if (dtData == null || dtData.Rows.Count == 0)
             {
-                //btPrint.Enabled = false;
+                btEdit.Enabled = btDel.Enabled = btPrint.Enabled = false;
                 return;
             }
 
@@ -113,13 +114,18 @@ namespace ViewSalesPromProducts
 
 
                 dtData.DefaultView.RowFilter = filter;
-                //btPrint.Enabled = dtData.DefaultView.Count != 0;
                 dtData.DefaultView.Sort = "id_otdel asc, cName asc";
+
+                
             }
             catch
             {
                 dtData.DefaultView.RowFilter = "id_tovar = -1";
-                //btPrint.Enabled = false;
+               // btEdit.Enabled = btDel.Enabled = btPrint.Enabled = btPrint.Enabled = false;
+            }
+            finally
+            {
+                btEdit.Enabled = btDel.Enabled = btPrint.Enabled = dtData.DefaultView.Count != 0;
             }
 
         }
@@ -224,6 +230,146 @@ namespace ViewSalesPromProducts
                 dgvMain.Rows[e.RowIndex].DefaultCellStyle.SelectionBackColor = rColor;
                 dgvMain.Rows[e.RowIndex].DefaultCellStyle.SelectionForeColor = Color.Black;
             }
+        }
+
+        private void btAdd_Click(object sender, EventArgs e)
+        {
+            if (DialogResult.OK == new frmAdd() { Text = "Добавление акции" }.ShowDialog())
+                getData();
+        }
+
+        private void btEdit_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.CurrentRow == null || dgvMain.CurrentRow.Index == -1 || dtData == null || dtData.DefaultView.Count == 0) return;
+                      
+            string ean = (string)dtData.DefaultView[dgvMain.CurrentRow.Index]["ean"];
+
+            decimal Price = (decimal)dtData.DefaultView[dgvMain.CurrentRow.Index]["PriceRealK21"];
+            decimal SalePrice = (decimal)dtData.DefaultView[dgvMain.CurrentRow.Index]["PriceDiscountK21"];
+
+            if (DialogResult.OK == new frmAdd() { Text = "Редактирование акции", ean = ean, Price = Price, SalePrice = SalePrice }.ShowDialog())
+                getData();
+        }
+
+        private void btDel_Click(object sender, EventArgs e)
+        {
+            if (dgvMain.CurrentRow == null || dgvMain.CurrentRow.Index == -1 || dtData == null || dtData.DefaultView.Count == 0) return;
+
+            if (DialogResult.No == MessageBox.Show(Config.centralText("Удалить выбранную акцию?\n"), "Предупреждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)) return;
+
+            string ean = (string)dtData.DefaultView[dgvMain.CurrentRow.Index]["ean"];
+
+            if (DialogResult.OK == new frmDel() {ean = ean}.ShowDialog())
+                getData();
+        }
+
+
+        private void setWidthColumn(int indexRow, int indexCol, int width, Nwuram.Framework.ToExcelNew.ExcelUnLoad report)
+        {
+            report.SetColumnWidth(indexRow, indexCol, indexRow, indexCol, width);
+        }
+
+
+        private void btPrint_Click(object sender, EventArgs e)
+        {
+
+            report = new Nwuram.Framework.ToExcelNew.ExcelUnLoad();
+
+            int indexRow = 1;
+            int maxColumns = 0;
+            foreach (DataGridViewColumn col in dgvMain.Columns)
+                if (col.Visible)
+                {
+                    maxColumns++;
+                    if (col.Name.Equals(cDeps.Name)) setWidthColumn(indexRow, maxColumns, 13, report);
+                    if (col.Name.Equals(cEan.Name)) setWidthColumn(indexRow, maxColumns, 15, report);
+                    if (col.Name.Equals(cName.Name)) setWidthColumn(indexRow, maxColumns, 40, report);
+                    if (col.Name.Equals(cPriceRealK21.Name)) setWidthColumn(indexRow, maxColumns, 11, report);
+                    if (col.Name.Equals(cPriceDiscountK21.Name)) setWidthColumn(indexRow, maxColumns, 11, report);
+                    if (col.Name.Equals(cPriceRealX14.Name)) setWidthColumn(indexRow, maxColumns, 11, report);
+                    if (col.Name.Equals(cPriceDiscountX14.Name)) setWidthColumn(indexRow, maxColumns, 11, report);
+                }
+
+
+            #region "Head"
+            report.Merge(indexRow, 1, indexRow, maxColumns);
+            report.AddSingleValue($"{this.Text}", indexRow, 1);
+            report.SetFontBold(indexRow, 1, indexRow, 1);
+            report.SetFontSize(indexRow, 1, indexRow, 1, 16);
+            report.SetCellAlignmentToCenter(indexRow, 1, indexRow, 1);
+            indexRow++;
+            indexRow++;
+
+
+            report.Merge(indexRow, 1, indexRow, maxColumns);
+            report.AddSingleValue($"Отдел: {cmbOtdel.Text}", indexRow, 1);
+            indexRow++;
+
+
+            if (tbSearchCode.Text.Trim().Length != 0 || tbSearchName.Text.Trim().Length != 0)
+            {
+                report.Merge(indexRow, 1, indexRow, maxColumns);
+                report.AddSingleValue($"Фильтр: {(tbSearchCode.Text.Trim().Length != 0 ? $"EAN:{tbSearchCode.Text.Trim()} | " : "")} {(tbSearchName.Text.Trim().Length != 0 ? $"Наименование:{tbSearchName.Text.Trim()}" : "")}", indexRow, 1);
+                indexRow++;
+            }
+
+            report.Merge(indexRow, 1, indexRow, maxColumns);
+            report.AddSingleValue("Выгрузил: " + Nwuram.Framework.Settings.User.UserSettings.User.FullUsername, indexRow, 1);
+            indexRow++;
+
+            report.Merge(indexRow, 1, indexRow, maxColumns);
+            report.AddSingleValue("Дата выгрузки: " + DateTime.Now.ToString(), indexRow, 1);
+            indexRow++;
+            indexRow++;
+            #endregion
+
+            int indexCol = 0;
+            foreach (DataGridViewColumn col in dgvMain.Columns)
+                if (col.Visible)
+                {
+                    indexCol++;
+                    report.AddSingleValue(col.HeaderText, indexRow, indexCol);
+                }
+            report.SetFontBold(indexRow, 1, indexRow, maxColumns);
+            report.SetBorders(indexRow, 1, indexRow, maxColumns);
+            report.SetCellAlignmentToCenter(indexRow, 1, indexRow, maxColumns);
+            report.SetCellAlignmentToJustify(indexRow, 1, indexRow, maxColumns);
+            report.SetWrapText(indexRow, 1, indexRow, maxColumns);
+            indexRow++;
+
+            foreach (DataRowView row in dtData.DefaultView)
+            {
+                indexCol = 1;
+                report.SetWrapText(indexRow, indexCol, indexRow, maxColumns);
+                foreach (DataGridViewColumn col in dgvMain.Columns)
+                {
+                    if (col.Visible)
+                    {
+                        if (row[col.DataPropertyName] is DateTime)
+                            report.AddSingleValue(((DateTime)row[col.DataPropertyName]).ToShortDateString(), indexRow, indexCol);
+                        else
+                           if (row[col.DataPropertyName] is decimal || row[col.DataPropertyName] is double)
+                        {
+                            report.AddSingleValueObject(row[col.DataPropertyName], indexRow, indexCol);
+                            report.SetFormat(indexRow, indexCol, indexRow, indexCol, "0.00");
+                        }
+                        else
+                            report.AddSingleValue(row[col.DataPropertyName].ToString(), indexRow, indexCol);
+
+                        indexCol++;
+                    }
+                }
+
+
+                report.SetBorders(indexRow, 1, indexRow, maxColumns);
+                report.SetCellAlignmentToCenter(indexRow, 1, indexRow, maxColumns);
+                report.SetCellAlignmentToJustify(indexRow, 1, indexRow, maxColumns);
+
+                indexRow++;
+            }
+
+
+            report.Show();
         }
 
 

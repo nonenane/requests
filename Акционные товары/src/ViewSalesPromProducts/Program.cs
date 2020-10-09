@@ -29,7 +29,11 @@ namespace ViewSalesPromProducts
                     //Logging.StopFirstLevel();
 
                     Config.connectMain = new sqlProcedures(ConnectionSettings.GetServer(), ConnectionSettings.GetDatabase(), ConnectionSettings.GetUsername(), ConnectionSettings.GetPassword(), ConnectionSettings.ProgramName);
-                    Config.connectSecond = new sqlProcedures(ConnectionSettings.GetServer("2"), ConnectionSettings.GetDatabase("2"), ConnectionSettings.GetUsername(), ConnectionSettings.GetPassword(), ConnectionSettings.ProgramName);
+                    Config.connectMainKassRealiz = new sqlProcedures(ConnectionSettings.GetServer("2"), ConnectionSettings.GetDatabase("2"), ConnectionSettings.GetUsername(), ConnectionSettings.GetPassword(), ConnectionSettings.ProgramName);
+
+
+                    Config.connectSecond = new sqlProcedures(ConnectionSettings.GetServer("3"), ConnectionSettings.GetDatabase("3"), ConnectionSettings.GetUsername(), ConnectionSettings.GetPassword(), ConnectionSettings.ProgramName);
+                    Config.connectSecondKassRealiz = new sqlProcedures(ConnectionSettings.GetServer("4"), ConnectionSettings.GetDatabase("4"), ConnectionSettings.GetUsername(), ConnectionSettings.GetPassword(), ConnectionSettings.ProgramName);
 
                     if (Nwuram.Framework.Settings.User.UserSettings.User.StatusCode.ToUpper().Equals("КД"))
                         Application.Run(new frmMain());
