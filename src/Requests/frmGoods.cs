@@ -978,6 +978,7 @@ namespace Requests
                     //grdGoods.Rows[e.RowIndex].Cells["cName"].Style.BackColor = 
                     rowColor;
 
+                if(dtGoods.Columns.Contains("idMaxrixGood"))
                 if (dtGoods.DefaultView[e.RowIndex]["idMaxrixGood"] != DBNull.Value)
                 {
                     grdGoods.Rows[e.RowIndex].Cells["cName"].Style.SelectionBackColor =
@@ -1088,8 +1089,13 @@ namespace Requests
                 Logging.Comment("Добавление товара в каталог");
                 Logging.Comment("Отдел: " + cbDep.Text + ", Номер: " + cbDep.SelectedValue.ToString());
                 Logging.Comment("ID товара: " + curRow["id_tovar"].ToString() + ", EAN: " + curRow["ean"].ToString().Trim() + ", Наименование: " + curRow["cName"].ToString().Trim());
-                Logging.Comment("Т/У группа: " + ((DataTable)cbTU.DataSource).Select("id = " + curRow["id_grp1"].ToString())[0]["cname"].ToString().Trim() + ", ID: " + curRow["id_grp1"].ToString() +
-                            ", Инв. группа: " + ((DataTable)cbInv.DataSource).Select("id = " + curRow["id_grp2"].ToString())[0]["cname"].ToString().Trim() + ", ID: " + curRow["id_grp2"].ToString());
+                try
+                {
+                    Logging.Comment("Т/У группа: " + ((DataTable)cbTU.DataSource).Select("id = " + curRow["id_grp1"].ToString())[0]["cname"].ToString().Trim() + ", ID: " + curRow["id_grp1"].ToString() +
+                                ", Инв. группа: " + ((DataTable)cbInv.DataSource).Select("id = " + curRow["id_grp2"].ToString())[0]["cname"].ToString().Trim() + ", ID: " + curRow["id_grp2"].ToString());
+                }
+                catch (Exception ex)
+                { }
                 Logging.Comment("Цена пр.: " + curRow["rcena"].ToString());
                 curRow.SetField<bool>("isCatGood", true);
                 grdGoods.Refresh();
@@ -1106,9 +1112,12 @@ namespace Requests
                 Logging.StartFirstLevel(552);
                 Logging.Comment("Удаление товара из каталога");
                 Logging.Comment("Отдел: " + cbDep.Text + ", Номер: " + cbDep.SelectedValue.ToString());
-                Logging.Comment("ID товара: " + curRow["id_tovar"].ToString() + ", EAN: " + curRow["ean"].ToString().Trim() + ", Наименование: " + curRow["cName"].ToString().Trim());
-                Logging.Comment("Т/У группа: " + ((DataTable)cbTU.DataSource).Select("id = " + curRow["id_grp1"].ToString())[0]["cname"].ToString().Trim() + ", ID: " + curRow["id_grp1"].ToString() +
-                             ", Инв. группа: " + ((DataTable)cbInv.DataSource).Select("id = " + curRow["id_grp2"].ToString())[0]["cname"].ToString().Trim() + ", ID: " + curRow["id_grp2"].ToString());
+                Logging.Comment("ID товара: " + curRow["id_tovar"].ToString() + ", EAN: " + curRow["ean"].ToString().Trim() + ", Наименование: " + curRow["cName"].ToString().Trim()); try
+                {
+                    Logging.Comment("Т/У группа: " + ((DataTable)cbTU.DataSource).Select("id = " + curRow["id_grp1"].ToString())[0]["cname"].ToString().Trim() + ", ID: " + curRow["id_grp1"].ToString() +
+                                 ", Инв. группа: " + ((DataTable)cbInv.DataSource).Select("id = " + curRow["id_grp2"].ToString())[0]["cname"].ToString().Trim() + ", ID: " + curRow["id_grp2"].ToString());
+                }
+                catch (Exception ex) { }
                 Logging.Comment("Цена пр.: " + curRow["rcena"].ToString());
                 curRow.SetField<bool>("isCatGood", false);
                 grdGoods.Refresh();
@@ -1652,20 +1661,28 @@ namespace Requests
 
         private void tsmiAddGoodMatrix_Click(object sender, EventArgs e)
         {
-            int id_tovar = (int)curRow["id_tovar"];
-            DataTable dtResult = (int)cbDep.SelectedValue!=6? Config.hCntMain.setTovarMatrix(id_tovar, false): Config.hCntAdd.setTovarMatrix(id_tovar, false);
-            if (dtResult == null || dtResult.Rows.Count == 0) return;
+            if (MessageBox.Show("Добавить товар в матрицу?", "Запрос.", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                int id_tovar = (int)curRow["id_tovar"];
+                DataTable dtResult = (int)cbDep.SelectedValue != 6 ? Config.hCntMain.setTovarMatrix(id_tovar, false) : Config.hCntAdd.setTovarMatrix(id_tovar, false);
+                if (dtResult == null || dtResult.Rows.Count == 0) return;
 
-            curRow["idMaxrixGood"] = (int)dtResult.Rows[0]["id"];
+                curRow["idMaxrixGood"] = (int)dtResult.Rows[0]["id"];
+                dtGoods.AcceptChanges();
+            }
         }
 
         private void tsmiDelGoodMatrix_Click(object sender, EventArgs e)
         {
-            int id_tovar = (int)curRow["id_tovar"];
-            DataTable dtResult = (int)cbDep.SelectedValue != 6 ? Config.hCntMain.setTovarMatrix(id_tovar, true) : Config.hCntAdd.setTovarMatrix(id_tovar, true);
-            if (dtResult == null || dtResult.Rows.Count == 0) return;
+            if (MessageBox.Show("Удалить товар из матрицы?", "Запрос.", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                int id_tovar = (int)curRow["id_tovar"];
+                DataTable dtResult = (int)cbDep.SelectedValue != 6 ? Config.hCntMain.setTovarMatrix(id_tovar, true) : Config.hCntAdd.setTovarMatrix(id_tovar, true);
+                if (dtResult == null || dtResult.Rows.Count == 0) return;
 
-            curRow["idMaxrixGood"] = DBNull.Value;
+                curRow["idMaxrixGood"] = DBNull.Value;
+                dtGoods.AcceptChanges();
+            }
         }
 
         private void chbMatrix_Click(object sender, EventArgs e)
